@@ -13,17 +13,25 @@ pgs_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh3
   }
   pgs_path <- file.path(pgs_path, pgs_file)
   download.file(pgs_path, pgs_file, method="wget")
-  avcopy(pgs_file, file.path(dest_bucket, pgs_file))
+  bucket_path <- file.path(dest_bucket, pgs_file)
   md5 <- read_delim(paste0(pgs_path, ".md5"), col_names="md5", col_types="c-")$md5
   dat <- read_tsv(pgs_file, comment="#")
+  if (harmonized) {
+    dat <- dat %>%
+      mutate(rsID = hm_rsID, chr_name = hm_chr, chr_position = hm_pos) %>%
+      select(-hm_rsID, -hm_chr, -hm_pos)
+    write_tsv(dat, pgs_file)
+    md5 <- tools::md5sum(pgs_file)
+  }
   pgs_file_table <- tibble(
     pgs_analysis_id = pgs_id,
     md5sum = md5,
-    file_path = pgs_path,
+    file_path = bucket_path,
     file_type = "data",
     chromosome = "ALL",
     n_variants = nrow(dat)
   )
+  avcopy(pgs_file, bucket_path)
   return(pgs_file_table)
 }
 
