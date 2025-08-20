@@ -1,6 +1,5 @@
 library(quincunx)
 library(AnVIL)
-library(AnVILGCP)
 library(tidyverse)
 
 pgs_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh38") {
@@ -31,7 +30,7 @@ pgs_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh3
     chromosome = "ALL",
     n_variants = nrow(dat)
   )
-  avcopy(pgs_file, bucket_path)
+  gsutil_cp(pgs_file, bucket_path)
   return(pgs_file_table)
 }
 
