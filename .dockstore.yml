@@ -1,0 +1,6 @@
+version: 1.2
+workflows:
+   - name: primed_fetch_pgs_catalog
+     subclass: WDL
+     primaryDescriptorPath: /primed_fetch_pgs_catalog.wdl
+         
