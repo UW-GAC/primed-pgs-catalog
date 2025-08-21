@@ -60,8 +60,8 @@ task fetch_pgs {
             file_table <- pgs_file_table('~{pgs_id}', dest_bucket='~{dest_bucket}', harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
             analysis_tables <- pgs_analysis_tables('~{pgs_id}', assembly='~{assembly}')
             write_tsv(file_table, 'pgs_file_table.tsv')
-            write_tsv(analysis_tables$pgs_analysis, 'pgs_analysis_table.tsv')
-            write_tsv(analysis_tables$pgs_sample_devel, 'pgs_sample_devel_table.tsv')
+            write_tsv(analysis_tables[['pgs_analysis']], 'pgs_analysis_table.tsv')
+            write_tsv(analysis_tables[['pgs_sample_devel']], 'pgs_sample_devel_table.tsv')
         RSCRIPT
     >>>
 
