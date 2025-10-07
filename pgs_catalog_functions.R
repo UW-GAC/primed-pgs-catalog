@@ -2,7 +2,7 @@ library(quincunx)
 library(AnVIL)
 library(tidyverse)
 
-pgs_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh38") {
+pgs_scoring_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh38") {
   pgs_path <- file.path("https://ftp.ebi.ac.uk/pub/databases/spot/pgs/scores", pgs_id, "ScoringFiles")
   if (harmonized) {
     pgs_path <- file.path(pgs_path, "Harmonized")
@@ -23,7 +23,7 @@ pgs_file_table <- function(pgs_id, dest_bucket, harmonized=TRUE, assembly="GRCh3
     md5 <- tools::md5sum(pgs_file)
   }
   pgs_file_table <- tibble(
-    pgs_analysis_id = pgs_id,
+    pgs_model_id = pgs_id,
     md5sum = md5,
     file_path = bucket_path,
     file_type = "data",
@@ -60,7 +60,7 @@ cohorts <- function(x) {
 }
 
 # supply assembly instead of reading from the data, so we can get harmonized score files
-pgs_analysis_tables <- function(pgs_id, assembly) {
+pgs_model_tables <- function(pgs_id, assembly) {
   scores <- get_scores(pgs_id)
   
   sample_table <- scores@samples %>%
@@ -77,17 +77,17 @@ pgs_analysis_tables <- function(pgs_id, assembly) {
       proportion_male
     ) %>%
     mutate(
-      pgs_analysis_id = pgs_id,
+      pgs_model_id = pgs_id,
       pgs_sample_name = paste(pgs_id, sample_id, sep="_"),
     ) %>%
     left_join(population_descriptors(scores@samples)) %>%
     left_join(cohorts(scores@cohorts)) %>%
     select(-pgs_id, -sample_id)
   
-  analysis_table <- scores@scores %>%
-    mutate(pgs_analysis_id = pgs_id) %>%
+  model_table <- scores@scores %>%
+    mutate(pgs_model_id = pgs_id) %>%
     select(
-      pgs_analysis_id,
+      pgs_model_id,
       pgsc_pgs_id = pgs_id,
       pgs_name = pgs_name,
       n_variants,
@@ -112,7 +112,7 @@ pgs_analysis_tables <- function(pgs_id, assembly) {
       trait_description = scores@traits$description
       )
   
-  list(pgs_analysis = analysis_table,
+  list(pgs_model = model_table,
        pgs_sample_devel = sample_table)
 }
 

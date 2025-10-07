@@ -57,19 +57,19 @@ task fetch_pgs {
     command <<<
         R << RSCRIPT
             source('/usr/local/primed-pgs-catalog/pgs_catalog_functions.R')
-            file_table <- pgs_file_table('~{pgs_id}', dest_bucket='~{dest_bucket}', harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
-            analysis_tables <- pgs_analysis_tables('~{pgs_id}', assembly='~{assembly}')
-            write_tsv(file_table, 'pgs_file_table.tsv')
-            write_tsv(analysis_tables[['pgs_analysis']], 'pgs_analysis_table.tsv')
-            write_tsv(analysis_tables[['pgs_sample_devel']], 'pgs_sample_devel_table.tsv')
+            file_table <- pgs_scoring_file_table('~{pgs_id}', dest_bucket='~{dest_bucket}', harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
+            model_tables <- pgs_model_tables('~{pgs_id}', assembly='~{assembly}')
+            write_tsv(file_table, 'pgs_scoring_file_table.tsv')
+            write_tsv(model_tables[['pgs_model']], 'pgs_model_table.tsv')
+            write_tsv(model_tables[['pgs_sample_devel']], 'pgs_sample_devel_table.tsv')
         RSCRIPT
     >>>
 
     output {
         Map[String, File] table_files = {
-            "pgs_analysis": "pgs_analysis_table.tsv",
+            "pgs_model": "pgs_model_table.tsv",
             "pgs_sample_devel": "pgs_sample_devel_table.tsv",
-            "pgs_file": "pgs_file_table.tsv"
+            "pgs_scoring_file": "pgs_scoring_file_table.tsv"
         }
     }
 
