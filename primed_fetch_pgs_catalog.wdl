@@ -55,10 +55,8 @@ task fetch_pgs {
     }
 
     command <<<
-        wget https://raw.githubusercontent.com/UW-GAC/primed-pgs-catalog/refs/heads/rename/pgs_catalog_functions.R
         R << RSCRIPT
-            #source('/usr/local/primed-pgs-catalog/pgs_catalog_functions.R')
-            source('pgs_catalog_functions.R')
+            source('/usr/local/primed-pgs-catalog/pgs_catalog_functions.R')
             file_table <- pgs_scoring_file_table('~{pgs_id}', dest_bucket='~{dest_bucket}', harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
             model_tables <- pgs_model_tables('~{pgs_id}', assembly='~{assembly}')
             write_tsv(file_table, 'pgs_scoring_file_table.tsv')
