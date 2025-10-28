@@ -3,4 +3,7 @@ workflows:
    - name: primed_fetch_pgs_catalog
      subclass: WDL
      primaryDescriptorPath: /primed_fetch_pgs_catalog.wdl
-         
+   - name: primed_pgsc_calc
+     subclass: WDL
+     primaryDescriptorPath: /primed_pgsc_calc.wdl
+
