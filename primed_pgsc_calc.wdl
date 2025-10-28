@@ -65,7 +65,7 @@ task prep_pgs_table {
             pgs_model_id = "~{pgs_model_id}",
             file_path = scorefile,
             file_readme_path = report,
-            md5sum = tools::md5(scorefile),
+            md5sum = tools::md5sum(scorefile),
             n_subjects = nsubj
         )
         write_tsv(df, 'pgs_individual_file_table.tsv')
