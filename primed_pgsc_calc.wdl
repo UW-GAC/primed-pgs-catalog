@@ -33,6 +33,8 @@ workflow primed_pgsc_calc {
     }
 
     output {
+        File score_file = pgsc_calc.score_file
+        File report_file = pgsc_calc.report_file
         File validation_report = validate_pgs_individual.validation_report
         Array[File]? tables = validate_pgs_individual.tables
         String? md5_check_summary = validate_pgs_individual.md5_check_summary
