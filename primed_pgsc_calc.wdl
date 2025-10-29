@@ -20,7 +20,8 @@ workflow primed_pgsc_calc {
     call prep_pgs_table {
         input:
             score_file = pgsc_calc.score_file,
-            report_file = pgsc_calc.report_file,
+            score_file_path = pgsc_calc.score_file,
+            report_file_path = pgsc_calc.report_file,
             pgs_model_id = pgs_model_id
     }
 
@@ -48,12 +49,13 @@ workflow primed_pgsc_calc {
 task prep_pgs_table {
     input {
         File score_file
-        File report_file
+        String score_file_path
+        String report_file_path
         String pgs_model_id
         Int mem_gb = 16
     }
 
-    Int disk_size = ceil(1.5*(size(score_file, "GB") + 1.5*(size(report_file, "GB")))) + 10
+    Int disk_size = ceil(1.5*(size(score_file, "GB"))) + 10
 
     command <<<
         R << RSCRIPT
@@ -62,9 +64,9 @@ task prep_pgs_table {
         nsubj <- nrow(dat)
         df <- tibble(
             pgs_model_id = "~{pgs_model_id}",
-            file_path = "~{score_file}",
-            file_readme_path = "~{report_file}",
-            md5sum = tools::md5sum(scorefile),
+            file_path = "~{score_file_path}",
+            file_readme_path = "~{report_file_path}",
+            md5sum = tools::md5sum("~{score_file}"),
             n_subjects = nsubj
         )
         write_tsv(df, 'pgs_individual_file_table.tsv')
