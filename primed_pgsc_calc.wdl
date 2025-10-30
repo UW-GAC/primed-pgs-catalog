@@ -9,7 +9,7 @@ workflow primed_pgsc_calc {
         String pgs_model_id
         String sampleset_name
         String? primed_dataset_id
-        Boolean ancestry_adjust = true
+        Boolean ancestry_adjust
         File? pcs
         String model_url
         String workspace_name
@@ -103,7 +103,7 @@ task prep_pgs_table {
                 file_readme_path = "~{report_file_path}",
                 md5sum = tools::md5sum("~{adjusted_score_file}"),
                 n_subjects = nrow(dat_adj),
-                sampleset_name = "~{sampleset_name}",
+                sampleset = "~{sampleset_name}",
                 ancestry_adjusted = "TRUE"
             )
             df <- bind_rows(df, df_adj)
