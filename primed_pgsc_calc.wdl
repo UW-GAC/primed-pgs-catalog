@@ -14,6 +14,7 @@ workflow primed_pgsc_calc {
         String model_url
         String workspace_name
         String workspace_namespace
+        Boolean import_tables = true
     }
 
     call pgsc_calc.pgsc_calc {
@@ -38,14 +39,16 @@ workflow primed_pgsc_calc {
             adjusted_score_file = adjust_prs.adjusted_scores,
             adjusted_score_file_path = adjust_prs.adjusted_scores,
             pgs_model_id = pgs_model_id,
-            sampleset_name = sampleset_name
+            sampleset_name = sampleset_name,
+            primed_dataset_id = primed_dataset_id
     }
 
     call validate.validate_pgs_individual {
         input: table_files = prep_pgs_table.table_files,
                model_url = model_url,
                workspace_name = workspace_name,
-               workspace_namespace = workspace_namespace
+               workspace_namespace = workspace_namespace,
+               import_tables = import_tables
     }
 
     output {
