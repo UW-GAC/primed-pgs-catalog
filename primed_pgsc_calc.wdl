@@ -95,7 +95,7 @@ task prep_pgs_table {
             file_readme_path = "~{report_file_path}",
             md5sum = tools::md5sum("~{score_file}"),
             n_subjects = nrow(dat),
-            sampleset_name = "~{sampleset_name}",
+            sampleset = "~{sampleset_name}",
             ancestry_adjusted = "FALSE"
         )
         if (as.logical(toupper("~{has_adjusted}"))) {
