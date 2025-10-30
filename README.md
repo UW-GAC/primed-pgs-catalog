@@ -62,6 +62,7 @@ If the scoring file does not have a header as specified in the [pgsc_calc docume
 
 input | description
 --- | ---
+ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
 model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 pgs_model_id | ID for the PGS model in the PRIMED data model
 sampleset_name | Name of the sampleset; used to construct output file names (default `"cohort"`). **Underscores are not allowed**
@@ -75,6 +76,7 @@ pvar | Array of pvar files
 psam | Array of psam files
 target_build | `"GRCh38"` (default) or `"GRCh37"`
 vcf | Array of VCF files. If provided, will be converted to pgen/pvar/psam. If not provided, use pgen/pvar/psam inputs instead.
+pcs | optional file with PCs to adjust for ancestry
 import_tables | A boolean indicating whether tables should be imported to a workspace after validation.
 overwrite | A boolean indicating whether existing rows in the data tables should be overwritten.
 
