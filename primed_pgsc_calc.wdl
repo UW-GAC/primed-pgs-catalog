@@ -1,7 +1,7 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/data_model/pgsc_calc.wdl" as pgsc_calc
-import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/pgs/validate_pgs_individual.wdl" as validate
+import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc.wdl" as pgsc_calc
+import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 
 workflow primed_pgsc_calc {
     input {
