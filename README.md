@@ -63,6 +63,7 @@ If the scoring file does not have a header as specified in the [pgsc_calc docume
 input | description
 --- | ---
 ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
+dest_bucket | google bucket path (starting with "gs://") where individual score files should be written
 model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 pgs_model_id | ID for the PGS model in the PRIMED data model
 sampleset_name | Name of the sampleset; used to construct output file names (default `"cohort"`). **Underscores are not allowed**
