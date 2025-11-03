@@ -89,9 +89,9 @@ task prep_pgs_table {
         library(tidyverse)
         library(AnVIL)
         dat <- read_tsv("~{score_file}")
-        score_file_path <- file.path("~{dest_bucket}", paste(sampleset_name, pgs_model_id, basename("~{score_file}"), sep="_"))
+        score_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{score_file}"), sep="_"))
         gsutil_cp("~{score_file}", score_file_path)
-        report_file_path <- file.path("~{dest_bucket}", paste(sampleset_name, pgs_model_id, basename("~{report_file}"), sep="_"))
+        report_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{report_file}"), sep="_"))
         gsutil_cp("~{report_file}", report_file_path)
         df <- tibble(
             pgs_model_id = "~{pgs_model_id}",
@@ -104,7 +104,7 @@ task prep_pgs_table {
         )
         if (as.logical(toupper("~{has_adjusted}"))) {
             dat_adj <- read_tsv("~{adjusted_score_file}")
-            adjusted_score_file_path <- file.path("~{dest_bucket}", paste(sampleset_name, pgs_model_id, basename("~{adjusted_score_file}"), sep="_"))
+            adjusted_score_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{adjusted_score_file}"), sep="_"))
             gsutil_cp("~{adjusted_score_file}", adjusted_score_file_path)
             df_adj <- tibble(
                 pgs_model_id = "~{pgs_model_id}",
