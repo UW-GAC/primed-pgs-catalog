@@ -5,6 +5,7 @@ import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/m
 
 workflow primed_pgsc_calc {
     input {
+        String dest_bucket
         File scorefile
         String pgs_model_id
         String sampleset_name
@@ -33,11 +34,10 @@ workflow primed_pgsc_calc {
 
     call prep_pgs_table {
         input:
+            dest_bucket = dest_bucket,
             score_file = pgsc_calc.score_file,
-            score_file_path = pgsc_calc.score_file,
-            report_file_path = pgsc_calc.report_file,
+            report_file = pgsc_calc.report_file,
             adjusted_score_file = adjust_prs.adjusted_scores,
-            adjusted_score_file_path = adjust_prs.adjusted_scores,
             pgs_model_id = pgs_model_id,
             sampleset_name = sampleset_name,
             primed_dataset_id = primed_dataset_id
@@ -70,11 +70,10 @@ workflow primed_pgsc_calc {
 
 task prep_pgs_table {
     input {
+        String dest_bucket
         File score_file
-        String score_file_path
-        String report_file_path
+        File report_file
         File? adjusted_score_file
-        String? adjusted_score_file_path
         String pgs_model_id
         String sampleset_name
         String? primed_dataset_id
@@ -88,11 +87,16 @@ task prep_pgs_table {
     command <<<
         R << RSCRIPT
         library(tidyverse)
+        library(AnVIL)
         dat <- read_tsv("~{score_file}")
+        score_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{score_file}"), sep="_"))
+        gsutil_cp("~{score_file}", score_file_path)
+        report_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{report_file}"), sep="_"))
+        gsutil_cp("~{report_file}", report_file_path)
         df <- tibble(
             pgs_model_id = "~{pgs_model_id}",
-            file_path = "~{score_file_path}",
-            file_readme_path = "~{report_file_path}",
+            file_path = score_file_path,
+            file_readme_path = report_file_path,
             md5sum = tools::md5sum("~{score_file}"),
             n_subjects = nrow(dat),
             sampleset = "~{sampleset_name}",
@@ -100,10 +104,12 @@ task prep_pgs_table {
         )
         if (as.logical(toupper("~{has_adjusted}"))) {
             dat_adj <- read_tsv("~{adjusted_score_file}")
+            adjusted_score_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{adjusted_score_file}"), sep="_"))
+            gsutil_cp("~{adjusted_score_file}", adjusted_score_file_path)
             df_adj <- tibble(
                 pgs_model_id = "~{pgs_model_id}",
-                file_path = "~{adjusted_score_file_path}",
-                file_readme_path = "~{report_file_path}",
+                file_path = adjusted_score_file_path,
+                file_readme_path = report_file_path,
                 md5sum = tools::md5sum("~{adjusted_score_file}"),
                 n_subjects = nrow(dat_adj),
                 sampleset = "~{sampleset_name}",
@@ -126,7 +132,7 @@ task prep_pgs_table {
     }
 
     runtime {
-        docker: "rocker/tidyverse:4"
+        docker: "uwgac/primed-pgs-catalog:0.7.0"
         disks: "local-disk ~{disk_size} SSD"
         memory: "~{mem_gb}G"
     }
