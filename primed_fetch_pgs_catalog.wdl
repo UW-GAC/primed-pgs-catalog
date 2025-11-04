@@ -1,6 +1,6 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/pgs/validate_pgs_model.wdl" as validate
+import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_model.wdl" as validate
 
 workflow primed_fetch_pgs_catalog {
     input {
