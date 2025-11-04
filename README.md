@@ -30,7 +30,7 @@ This workflow fetches a score from the PGS catalog and imports it to an AnVIL wo
 
 input | description
 --- | ---
-dest_bucket | google bucket path (starting with "gs://") where scoring files should be written
+dest_bucket | google bucket path (starting with "gs://") where scoring files should be written.  Do not include a trailing "/"
 model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 pgs_id | ID in the PGS catalog of the score to fetch, e.g. "PGS000001"
 workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
