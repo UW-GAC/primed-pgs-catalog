@@ -1,10 +1,12 @@
 version 1.0
 
+import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc_prepare_genomes.wdl" as prep
 import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc.wdl" as pgsc_calc
 import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 
 workflow primed_pgsc_calc {
     input {
+        Array[File] vcf
         String dest_bucket
         File scorefile
         String pgs_model_id
@@ -18,8 +20,18 @@ workflow primed_pgsc_calc {
         Boolean import_tables = true
     }
 
+    call prep.pgsc_calc_prepare_genomes {
+        input:
+            vcf = vcf,
+            merge_chroms = true
+    }
+
     call pgsc_calc.pgsc_calc {
         input:
+            pgen = pgsc_calc_prepare_genomes.pgen,
+            pvar = pgsc_calc_prepare_genomes.pvar,
+            psam = pgsc_calc_prepare_genomes.psam,
+            chromosome = [""],
             scorefile = scorefile,
             sampleset_name = sampleset_name
     }
