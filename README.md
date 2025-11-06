@@ -60,6 +60,8 @@ If the scoring file does not have a header as specified in the [pgsc_calc docume
 
 **Note that including an underscore in the "sampleset" argument will cause the workflow to fail.**
 
+This workflow uses two-stage mean and variance regression-based continuous ancestry adjustment, as described in Khan et al. (2022) [PMID:35710995](https://pubmed.ncbi.nlm.nih.gov/35710995/). The regression is performed in the target genotype data using the provided PC file as input `pcs`. The file format is expected to have a column "IID" with sample ID and PC columns starting with "PC".
+
 input | description
 --- | ---
 ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
@@ -77,7 +79,7 @@ pvar | Array of pvar files
 psam | Array of psam files
 target_build | `"GRCh38"` (default) or `"GRCh37"`
 vcf | Array of VCF files. If provided, will be converted to pgen/pvar/psam. If not provided, use pgen/pvar/psam inputs instead.
-pcs | optional file with PCs to adjust for ancestry
+pcs | optional file with PCs to adjust for ancestry.
 import_tables | A boolean indicating whether tables should be imported to a workspace after validation.
 overwrite | A boolean indicating whether existing rows in the data tables should be overwritten.
 
