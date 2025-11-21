@@ -72,7 +72,7 @@ task match_scorefile {
         )
         writeLines(header, outfile)
         dat <- read_tsv("~{scorefile}", comment = "#") %>%
-            select(chr_name, chr_postion, effect_allele, other_allele, effect_weight)
+            select(chr_name, chr_position, effect_allele, other_allele, effect_weight)
         write_tsv(dat, outfile, append=TRUE, col_names=TRUE)
         RSCRIPT
 
