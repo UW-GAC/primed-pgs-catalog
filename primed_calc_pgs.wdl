@@ -60,6 +60,8 @@ task match_scorefile {
 
         # add header to scoring file
         R << RSCRIPT
+        library(readr)
+        library(dplyr)
         scorefile <- read_tsv("~{scorefile}")
         outfile <- "scorefile.txt.gz"
         header <- c(
@@ -69,9 +71,9 @@ task match_scorefile {
             "#genome_build=~{genome_build}"
         )
         writeLines(header, outfile)
-        dat <- readr::read_tsv("~{scorefile}", comment = "#") %>%
+        dat <- read_tsv("~{scorefile}", comment = "#") %>%
             select(chr_name, chr_postion, effect_allele, other_allele, effect_weight)
-        readr::write_tsv(dat, outfile, append=TRUE, col_names=TRUE)
+        write_tsv(dat, outfile, append=TRUE, col_names=TRUE)
         RSCRIPT
 
         # format pvar to drop header and extra columns
