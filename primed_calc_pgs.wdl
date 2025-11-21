@@ -63,7 +63,7 @@ task match_scorefile {
         library(readr)
         library(dplyr)
         scorefile <- read_tsv("~{scorefile}")
-        outfile <- "scorefile.txt.gz"
+        outfile <- "scorefile.txt"
         header <- c(
             "#pgs_name=~{pgs_name}",
             "#pgs_id=~{pgs_id}",
@@ -80,10 +80,10 @@ task match_scorefile {
         sed -n '/^##/!p' ~{pvar} | awk -v OFS='\t' '{print $1, $2, $3, $4, $5}'  > formatted.pvar
 
         # format scoring file for use with pgscatalog-match
-        pgscatalog-combine -s scorefile.txt.gz -t ~{genome_build} -o formatted.txt.gz
+        pgscatalog-combine -s scorefile.txt -t ~{genome_build} -o formatted.txt
 
         mkdir output
-        pgscatalog-match --dataset ~{sampleset_name} --scorefiles formatted.txt.gz --target formatted.pvar --outdir output --min_overlap ~{min_overlap}
+        pgscatalog-match --dataset ~{sampleset_name} --scorefiles formatted.txt --target formatted.pvar --outdir output --min_overlap ~{min_overlap}
     >>>
 
     output {
