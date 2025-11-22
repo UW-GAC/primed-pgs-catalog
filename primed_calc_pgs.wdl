@@ -91,7 +91,7 @@ task match_scorefile {
     }
 
     runtime {
-        docker: "uwgac/primed-pgs-queries:0.5.2"
+        docker: "uwgac/primed-pgs-queries:0.4.1"
         disks: "local-disk ~{disk_size} SSD"
         memory: "~{mem_gb}G"
     }
