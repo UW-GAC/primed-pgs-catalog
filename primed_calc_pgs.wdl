@@ -202,8 +202,7 @@ task adjust_prs {
         source('https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/ancestry_adjustment.R')
         scores <- read_tsv('~{scores}')
         pcs <- read_tsv('~{pcs}')
-        scores <- select(scores, IID, SUM) %>%
-            mutate(IID = as.character(IID))
+        scores <- prep_scores(scores)
         model <- fit_prs(scores, pcs)
         mean_coef <- model[['mean_coef']]
         var_coef <- model[['var_coef']]
