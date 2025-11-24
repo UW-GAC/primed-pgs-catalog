@@ -29,8 +29,20 @@ workflow primed_calc_pgs {
             sampleset_name = sampleset_name
     }
 
+    call plink_score {
+        input:
+            scorefile = match_scorefile.match_scorefile,
+            pgen = pgsc_calc_prepare_genomes.pgen[0],
+            pvar = pgsc_calc_prepare_genomes.pvar[0],
+            psam = pgsc_calc_prepare_genomes.psam[0],
+            prefix = sampleset_name
+    }
+
     output {
-        Array[File] match_files = match_scorefile.match_files
+        File scores = plink_score.scores
+        File variants = plink_score.variants
+        File match_log = match_scorefile.match_log
+        File match_summary = match_scorefile.match_summary
     }
 
      meta {
@@ -50,7 +62,8 @@ task match_scorefile {
         String pgs_id = "unknown"
         String trait_reported = "unknown"
         String sampleset_name = "cohort"
-        Int mem_gb = 16
+        Int mem_gb = 128
+        Int cpu = 2
     }
 
     Int disk_size = ceil(3*(size(scorefile, "GB") + size(pvar, "GB"))) + 10
@@ -87,12 +100,47 @@ task match_scorefile {
     >>>
 
     output {
-        Array[File] match_files = glob("output/*")
+        File match_scorefile = "output/~{sampleset_name}_ALL_additive_0.scorefile.gz"
+        File match_log = "output/~{sampleset_name}_log.csv.gz"
+        File match_summary = "output/~{sampleset_name}_summary.csv"
     }
 
     runtime {
         docker: "uwgac/primed-pgs-queries:0.4.1"
         disks: "local-disk ~{disk_size} SSD"
         memory: "~{mem_gb}G"
+    }
+}
+
+
+task plink_score {
+    input {
+        File scorefile
+        File pgen
+        File pvar
+        File psam
+        String prefix = "out"
+        Int mem_gb = 16
+        Int cpu = 2
+    }
+    
+    Int disk_size = ceil(1.5*(size(pgen, "GB") + size(pvar, "GB") + size(psam, "GB") + size(scorefile, "GB"))) + 10
+
+    command <<<
+        plink2 --pgen ~{pgen} --pvar ~{pvar} --psam ~{psam} --score ~{scorefile} \
+            no-mean-imputation header-read list-variants cols=+scoresums \
+            --out ~{prefix}
+    >>>
+
+    output {
+        File scores = "~{prefix}.sscore"
+        File variants = "~{prefix}.sscore.vars"
+    }
+
+    runtime {
+        docker: "quay.io/biocontainers/plink2:2.00a5.12--h4ac6f70_0"
+        disks: "local-disk ~{disk_size} SSD"
+        memory: "~{mem_gb}G"
+        cpu: "~{cpu}"
     }
 }
