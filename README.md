@@ -86,3 +86,4 @@ validation_report | An HTML file with validation results
 tables | A file array with the tables after adding auto-generated columns. This output is not generated if no additional columns are specified in the data model.
 md5_check_summary | A string describing the check results
 md5_check_details | A TSV file with two columns: file_path of the file in cloud storage and md5_check with the check result.
+
