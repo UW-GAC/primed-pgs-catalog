@@ -50,15 +50,11 @@ data_report_summary | A string describing the check results
 data_report_details | A TSV file with two columns: file_path of the file in cloud storage validation_report with the path to a text file with validation details
 
 
-## primed_pgsc_calc
+## primed_calc_pgs
 
-This workflow applies a scoring file to a genotype dataset and imports the resulting individual-level scores to an AnVIL workspace. It uses the [pgsc_calc](https://pgsc-calc.readthedocs.io/) software to compute scores. **If an input is not specified in the table below (e.g. ancestry_ref_panel, pgs_id), it should be left blank when running the workflow.**
+This workflow applies a scoring file to a genotype dataset and imports the resulting individual-level scores to an AnVIL workspace. 
 
-Genotype inputs may be either an array of VCF files (in which case they are converted to pgen/psam/pvar prior to running pgsc_calc), or pgen/psam/pvar files. **If pgen/psam/pvar are provided; the pvar file should have variant ids in the form chr:pos:ref:alt without the "chr" prefix.**
-
-If the scoring file does not have a header as specified in the [pgsc_calc documentation](https://pgsc-calc.readthedocs.io/en/latest/how-to/calculate_custom.html), a header will be added prior to running pgsc_calc.
-
-**Note that including an underscore in the "sampleset" argument will cause the workflow to fail.**
+Genotype inputs should be an array of VCF files (though a single VCF file with all chromosomes is allowed).
 
 This workflow uses two-stage mean and variance regression-based continuous ancestry adjustment, as described in Khan et al. (2022) [PMID:35710995](https://pubmed.ncbi.nlm.nih.gov/35710995/). The regression is performed in the target genotype data using the provided PC file as input `pcs`. The file format is expected to have a column "IID" with sample ID and PC columns starting with "PC".
 
@@ -66,27 +62,26 @@ input | description
 --- | ---
 ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
 dest_bucket | google bucket path (starting with "gs://") where individual score files should be written
+genome_build | `"GRCh38"` or `"GRCh37"`. The scorefile must match the build of the VCF files.
+min_overlap | The minimum overlap a score file must have with the genotype data to be scored, expressed as a fraction (e.g. 0.8 for 80% overlap). If the overlap is below this threshold, scoring will not be performed and an error will be raised.
 model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 pgs_model_id | ID for the PGS model in the PRIMED data model
-sampleset_name | Name of the sampleset; used to construct output file names (default `"cohort"`). **Underscores are not allowed**
+sampleset_name | Name of the sampleset; used to construct output file names.
 scorefile | google bucket path to scoring file
+vcf | Array of VCF files.
 workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
 workspace_namespace | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
-arguments | [Additional arguments](https://pgsc-calc.readthedocs.io/en/latest/reference/params.html#param-ref) to pass to psgc_calc, e.g. `[ "--min_overlap 0.5" ]`
-chromosome | Array of chromosome strings (1-22, X, Y) corresponding to `vcf` or `pgen/pvar/psam`. If there is one file with multiple chromosomes, this input should be an empty string (`[""]`)
-pgen | Array of pgen files
-pvar | Array of pvar files
-psam | Array of psam files
-target_build | `"GRCh38"` (default) or `"GRCh37"`
-vcf | Array of VCF files. If provided, will be converted to pgen/pvar/psam. If not provided, use pgen/pvar/psam inputs instead.
 pcs | optional file with PCs to adjust for ancestry.
-import_tables | A boolean indicating whether tables should be imported to a workspace after validation.
-overwrite | A boolean indicating whether existing rows in the data tables should be overwritten.
+import_tables | A boolean indicating whether tables should be imported to a workspace after validation. (default true)
+overwrite | A boolean indicating whether existing rows in the data tables should be overwritten. (default false)
 
 output | description
 --- | ---
 score_file | File with individual-level scores (also included as file_path in pgs_individual_file data table)
-report_file | File with QC report (also included as file_readme_path in pgs_individual_file data table)
+adjusted_score_file | File with ancestry-adjusted individual-level scores (also included as file_path in pgs_individual_file data table)
+match_summary | Summary file from matching score file variants to genotype data variants (also included as file_readme_path in pgs_individual_file data table)
+match_log | Log file from matching score file variants to genotype data variants
+variants | File with the variants used for scoring (after matching)
 validation_report | An HTML file with validation results
 tables | A file array with the tables after adding auto-generated columns. This output is not generated if no additional columns are specified in the data model.
 md5_check_summary | A string describing the check results
