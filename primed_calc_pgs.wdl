@@ -18,7 +18,9 @@ workflow primed_calc_pgs {
         String model_url
         String workspace_name
         String workspace_namespace
+        Boolean overwrite = false
         Boolean import_tables = true
+        Boolean check_bucket_paths = true
     }
 
     call prep.pgsc_calc_prepare_genomes {
@@ -71,7 +73,9 @@ workflow primed_calc_pgs {
                model_url = model_url,
                workspace_name = workspace_name,
                workspace_namespace = workspace_namespace,
-               import_tables = import_tables
+               overwrite = overwrite,
+               import_tables = import_tables,
+               check_bucket_paths = check_bucket_paths
     }
 
     output {
