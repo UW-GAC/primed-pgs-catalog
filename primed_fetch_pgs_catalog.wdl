@@ -57,7 +57,7 @@ task fetch_pgs {
     command <<<
         R << RSCRIPT
             source('/usr/local/primed-pgs-catalog/pgs_catalog_functions.R')
-            dest_bucket <- sub('\\/$', '', '~{dest_bucket}')
+            dest_bucket <- sub('\\\\/$', '', '~{dest_bucket}')
             file_table <- pgs_scoring_file_table('~{pgs_id}', dest_bucket=dest_bucket, harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
             model_tables <- pgs_model_tables('~{pgs_id}', assembly='~{assembly}')
             write_tsv(file_table, 'pgs_scoring_file_table.tsv')

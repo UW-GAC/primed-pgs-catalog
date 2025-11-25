@@ -244,7 +244,7 @@ task prep_pgs_table {
         library(tidyverse)
         library(AnVIL)
         dat <- read_tsv("~{score_file}")
-        dest_bucket <- sub("\\/$", "", "~{dest_bucket}")
+        dest_bucket <- sub("\\\\/$", "", "~{dest_bucket}")
         score_file_path <- file.path(dest_bucket, paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{score_file}"), sep="_"))
         gsutil_cp("~{score_file}", score_file_path)
         report_file_path <- file.path(dest_bucket, paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{report_file}"), sep="_"))
