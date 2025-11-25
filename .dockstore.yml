@@ -3,9 +3,13 @@ workflows:
    - name: primed_fetch_pgs_catalog
      subclass: WDL
      primaryDescriptorPath: /primed_fetch_pgs_catalog.wdl
+     testParameterFiles:
+        - /primed_fetch_pgs_catalog.json
    - name: primed_pgsc_calc
      subclass: WDL
      primaryDescriptorPath: /primed_pgsc_calc.wdl
    - name: primed_calc_pgs
      subclass: WDL
      primaryDescriptorPath: /primed_calc_pgs.wdl
+     testParameterFiles:
+        - /primed_calc_pgs.json
