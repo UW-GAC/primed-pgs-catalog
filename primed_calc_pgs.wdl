@@ -45,7 +45,7 @@ workflow primed_calc_pgs {
     call match_scorefile {
         input:
             scorefile = scorefile,
-            pvar = select_first([merge_files.out_pvar, pvar, ""]),
+            pvar = select_first([merge_files.out_pvar, pvar]),
             genome_build = genome_build,
             min_overlap = min_overlap,
             pgs_name = pgs_model_id,
@@ -56,9 +56,9 @@ workflow primed_calc_pgs {
     call plink_score {
         input:
             scorefile = match_scorefile.match_scorefile,
-            pgen = select_first([merge_files.out_pgen, pgen, ""]),
-            pvar = select_first([merge_files.out_pvar, pvar, ""]),
-            psam = select_first([merge_files.out_psam, psam, ""]),
+            pgen = select_first([merge_files.out_pgen, pgen]),
+            pvar = select_first([merge_files.out_pvar, pvar]),
+            psam = select_first([merge_files.out_psam, psam]),
             prefix = sampleset_name
     }
 
