@@ -30,15 +30,16 @@ This workflow fetches a score from the PGS catalog and imports it to an AnVIL wo
 
 input | description
 --- | ---
-dest_bucket | google bucket path (starting with "gs://") where scoring files should be written.  Do not include a trailing "/"
-model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 pgs_id | ID in the PGS catalog of the score to fetch, e.g. "PGS000001"
+genome_build | `"GRCh38"` or `"GRCh37"`
+dest_bucket | google bucket path (starting with "gs://") where scoring files should be written.
+model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
 workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
-workspace_namespace | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
-assembly | The genome assembly, either "GRCh38" (default) or "GRCh37"
+workspace_namespace | A string with the workspace namespace. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
+import_tables | A boolean indicating whether tables should be imported to a workspace after validation (default true).
+overwrite | A boolean indicating whether existing rows in the data tables should be overwritten (default false).
+check_bucket_paths | A boolean indicating whether to check that the files exist in cloud storage (default true).
 harmonized | Boolean for whether the score file retrieved should be harmonized (default true)
-import_tables | A boolean indicating whether tables should be imported to a workspace after validation.
-overwrite | A boolean indicating whether existing rows in the data tables should be overwritten.
 
 output | description
 --- | ---
@@ -60,20 +61,22 @@ This workflow uses two-stage mean and variance regression-based continuous ances
 
 input | description
 --- | ---
-ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
-dest_bucket | google bucket path (starting with "gs://") where individual score files should be written
+pgs_model_id | ID for the PGS model in the PRIMED data model
+scorefile | google bucket path to scoring file
 genome_build | `"GRCh38"` or `"GRCh37"`. The scorefile must match the build of the VCF files.
 min_overlap | The minimum overlap a score file must have with the genotype data to be scored, expressed as a fraction (e.g. 0.8 for 80% overlap). If the overlap is below this threshold, scoring will not be performed and an error will be raised.
-model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
-pgs_model_id | ID for the PGS model in the PRIMED data model
 sampleset_name | Name of the sampleset; used to construct output file names.
-scorefile | google bucket path to scoring file
+primed_dataset_id | (optional) If the genotype data corresponds to a PRIMED dataset, provide the PRIMED dataset ID for inclusion in the data table.
 vcf | Array of VCF files.
-workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
-workspace_namespace | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
+ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
 pcs | optional file with PCs to adjust for ancestry.
-import_tables | A boolean indicating whether tables should be imported to a workspace after validation. (default true)
-overwrite | A boolean indicating whether existing rows in the data tables should be overwritten. (default false)
+dest_bucket | google bucket path (starting with "gs://") where individual score files should be written
+model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
+workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
+workspace_namespace | A string with the workspace namespace. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
+import_tables | A boolean indicating whether tables should be imported to a workspace after validation (default true).
+overwrite | A boolean indicating whether existing rows in the data tables should be overwritten (default false).
+check_bucket_paths | A boolean indicating whether to check that the files exist in cloud storage (default true).
 
 output | description
 --- | ---

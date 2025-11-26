@@ -6,11 +6,12 @@ workflow primed_fetch_pgs_catalog {
     input {
         Array[String] pgs_id
         String dest_bucket
+        String genome_build
         String model_url
         String workspace_name
         String workspace_namespace
         Boolean overwrite = false
-        Boolean import_tables = false
+        Boolean import_tables = true
         Boolean check_bucket_paths = true
     }
 
@@ -18,7 +19,8 @@ workflow primed_fetch_pgs_catalog {
         call fetch_pgs {
             input:
             pgs_id = pgs,
-            dest_bucket = dest_bucket
+            dest_bucket = dest_bucket,
+            assembly = genome_build
         }
 
         call validate.validate_pgs_model {
@@ -57,7 +59,8 @@ task fetch_pgs {
     command <<<
         R << RSCRIPT
             source('/usr/local/primed-pgs-catalog/pgs_catalog_functions.R')
-            file_table <- pgs_scoring_file_table('~{pgs_id}', dest_bucket='~{dest_bucket}', harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
+            dest_bucket <- sub('\\\\/$', '', '~{dest_bucket}')
+            file_table <- pgs_scoring_file_table('~{pgs_id}', dest_bucket=dest_bucket, harmonized=toupper('~{harmonized}'), assembly='~{assembly}')
             model_tables <- pgs_model_tables('~{pgs_id}', assembly='~{assembly}')
             write_tsv(file_table, 'pgs_scoring_file_table.tsv')
             write_tsv(model_tables[['pgs_model']], 'pgs_model_table.tsv')

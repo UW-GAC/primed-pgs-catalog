@@ -18,7 +18,9 @@ workflow primed_calc_pgs {
         String model_url
         String workspace_name
         String workspace_namespace
+        Boolean overwrite = false
         Boolean import_tables = true
+        Boolean check_bucket_paths = true
     }
 
     call prep.pgsc_calc_prepare_genomes {
@@ -71,7 +73,9 @@ workflow primed_calc_pgs {
                model_url = model_url,
                workspace_name = workspace_name,
                workspace_namespace = workspace_namespace,
-               import_tables = import_tables
+               overwrite = overwrite,
+               import_tables = import_tables,
+               check_bucket_paths = check_bucket_paths
     }
 
     output {
@@ -244,9 +248,10 @@ task prep_pgs_table {
         library(tidyverse)
         library(AnVIL)
         dat <- read_tsv("~{score_file}")
-        score_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{score_file}"), sep="_"))
+        dest_bucket <- sub("\\\\/$", "", "~{dest_bucket}")
+        score_file_path <- file.path(dest_bucket, paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{score_file}"), sep="_"))
         gsutil_cp("~{score_file}", score_file_path)
-        report_file_path <- file.path("~{dest_bucket}", paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{report_file}"), sep="_"))
+        report_file_path <- file.path(dest_bucket, paste("~{sampleset_name}", "~{pgs_model_id}", basename("~{report_file}"), sep="_"))
         gsutil_cp("~{report_file}", report_file_path)
         df <- tibble(
             pgs_model_id = "~{pgs_model_id}",
