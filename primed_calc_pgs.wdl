@@ -121,10 +121,11 @@ task match_scorefile {
         String trait_reported = "unknown"
         String sampleset_name = "cohort"
         Int mem_gb = 128
+        Int disk_size = 16
         Int cpu = 2
     }
 
-    Int disk_size = ceil(3*(size(scorefile, "GB") + size(pvar, "GB"))) + 10
+    #Int disk_size = ceil(3*(size(scorefile, "GB") + size(pvar, "GB"))) + 10
 
     command <<<
         set -e -o pipefail
