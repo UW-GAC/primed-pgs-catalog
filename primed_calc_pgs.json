@@ -8,7 +8,7 @@
     "primed_calc_pgs.ancestry_adjust": true,
     "primed_calc_pgs.pcs": "gs://fc-edcfd4f3-abdb-4d9e-80ec-b7c2ad829ce3/1000G_unrel.pc",
     "primed_calc_pgs.dest_bucket": "gs://fc-edcfd4f3-abdb-4d9e-80ec-b7c2ad829ce3/1000G_scores",
-    "primed_calc_pgs.model_url": "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json",
+    "primed_calc_pgs.model_url": "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/main/PRIMED_PGS_data_model.json",
     "primed_calc_pgs.workspace_name": "PRIMED_example_PGS_catalog",
     "primed_calc_pgs.workspace_namespace": "primed-cc",
     "primed_calc_pgs.vcf": [
