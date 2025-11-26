@@ -5,7 +5,10 @@ import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/m
 
 workflow primed_calc_pgs {
     input {
-        Array[File] vcf
+        Array[File]? vcf
+        File? pgen
+        File? pvar
+        File? psam
         File scorefile
         String genome_build
         Float min_overlap
@@ -23,16 +26,26 @@ workflow primed_calc_pgs {
         Boolean check_bucket_paths = true
     }
 
-    call prep.pgsc_calc_prepare_genomes {
+    if (defined(vcf)) {
+        scatter (file in select_first([vcf, ""])) {
+            call prep.prepare_genomes {
+                input:
+                    vcf = file
+            }
+        }
+            
+        call prep.merge_files {
         input:
-            vcf = vcf,
-            merge_chroms = true
+            pgen = prepare_genomes.pgen,
+            pvar = prepare_genomes.pvar,
+            psam = prepare_genomes.psam
+        }
     }
 
     call match_scorefile {
         input:
             scorefile = scorefile,
-            pvar = pgsc_calc_prepare_genomes.pvar[0],
+            pvar = select_first([merge_files.out_pvar, pvar]),
             genome_build = genome_build,
             min_overlap = min_overlap,
             pgs_name = pgs_model_id,
@@ -43,9 +56,9 @@ workflow primed_calc_pgs {
     call plink_score {
         input:
             scorefile = match_scorefile.match_scorefile,
-            pgen = pgsc_calc_prepare_genomes.pgen[0],
-            pvar = pgsc_calc_prepare_genomes.pvar[0],
-            psam = pgsc_calc_prepare_genomes.psam[0],
+            pgen = select_first([merge_files.out_pgen, pgen]),
+            pvar = select_first([merge_files.out_pvar, pvar]),
+            psam = select_first([merge_files.out_psam, psam]),
             prefix = sampleset_name
     }
 
