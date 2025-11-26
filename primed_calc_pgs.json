@@ -1,6 +1,6 @@
 {
-    "primed_calc_pgs.pgs_model_id": "this.pgs_model_id",
-    "primed_calc_pgs.scorefile": "this.file_path",
+    "primed_calc_pgs.pgs_model_id": "PGS000001",
+    "primed_calc_pgs.scorefile": "gs://fc-edcfd4f3-abdb-4d9e-80ec-b7c2ad829ce3/pgs_catalog/PGS000001_hmPOS_GRCh37.txt.gz",
     "primed_calc_pgs.genome_build": "GRCh37",
     "primed_calc_pgs.min_overlap": 0.75,
     "primed_calc_pgs.sampleset_name": "1000G",
