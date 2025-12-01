@@ -55,7 +55,7 @@ data_report_details | A TSV file with two columns: file_path of the file in clou
 
 This workflow applies a scoring file to a genotype dataset and imports the resulting individual-level scores to an AnVIL workspace. 
 
-Genotype inputs should be an array of VCF files (though a single VCF file with all chromosomes is allowed).
+Genotype inputs may be either an array of VCF files (in which case they are converted to pgen/psam/pvar), or pgen/psam/pvar files. **If pgen/psam/pvar are provided; the pvar file should have variant ids in the form chr:pos:ref:alt without the "chr" prefix.**
 
 This workflow uses two-stage mean and variance regression-based continuous ancestry adjustment, as described in Khan et al. (2022) [PMID:35710995](https://pubmed.ncbi.nlm.nih.gov/35710995/). The regression is performed in the target genotype data using the provided PC file as input `pcs`. The file format is expected to have a column "IID" with sample ID and PC columns starting with "PC".
 
@@ -67,7 +67,10 @@ genome_build | `"GRCh38"` or `"GRCh37"`. The scorefile must match the build of t
 min_overlap | The minimum overlap a score file must have with the genotype data to be scored, expressed as a fraction (e.g. 0.8 for 80% overlap). If the overlap is below this threshold, scoring will not be performed and an error will be raised.
 sampleset_name | Name of the sampleset; used to construct output file names.
 primed_dataset_id | (optional) If the genotype data corresponds to a PRIMED dataset, provide the PRIMED dataset ID for inclusion in the data table.
-vcf | Array of VCF files.
+vcf | Array of VCF files. If provided, will be converted to pgen/pvar/psam. If not provided, use pgen/pvar/psam inputs instead.
+pgen | pgen file for genotype data. If provided, pvar/psam must also be provided and vcf input should be omitted.
+pvar | pvar file for genotype data. If provided, pgen/psam must also be provided and vcf input should be omitted.
+psam | psam file for genotype data. If provided, pgen/pvar must also be provided and vcf input should be omitted.
 ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
 pcs | optional file with PCs to adjust for ancestry.
 dest_bucket | google bucket path (starting with "gs://") where individual score files should be written

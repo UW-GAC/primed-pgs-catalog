@@ -1,11 +1,13 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc_prepare_genomes.wdl" as prep
 import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 
 workflow primed_calc_pgs {
     input {
-        Array[File] vcf
+        Array[File]? vcf
+        File? pgen
+        File? pvar
+        File? psam
         File scorefile
         String genome_build
         Float min_overlap
@@ -23,16 +25,26 @@ workflow primed_calc_pgs {
         Boolean check_bucket_paths = true
     }
 
-    call prep.pgsc_calc_prepare_genomes {
+    if (defined(vcf)) {
+        scatter (file in select_first([vcf, ""])) {
+            call prepare_genomes {
+                input:
+                    vcf = file
+            }
+        }
+
+        call merge_files {
         input:
-            vcf = vcf,
-            merge_chroms = true
+            pgen = prepare_genomes.pgen,
+            pvar = prepare_genomes.pvar,
+            psam = prepare_genomes.psam
+        }
     }
 
     call match_scorefile {
         input:
             scorefile = scorefile,
-            pvar = pgsc_calc_prepare_genomes.pvar[0],
+            pvar = select_first([merge_files.out_pvar, pvar]),
             genome_build = genome_build,
             min_overlap = min_overlap,
             pgs_name = pgs_model_id,
@@ -43,9 +55,9 @@ workflow primed_calc_pgs {
     call plink_score {
         input:
             scorefile = match_scorefile.match_scorefile,
-            pgen = pgsc_calc_prepare_genomes.pgen[0],
-            pvar = pgsc_calc_prepare_genomes.pvar[0],
-            psam = pgsc_calc_prepare_genomes.psam[0],
+            pgen = select_first([merge_files.out_pgen, pgen]),
+            pvar = select_first([merge_files.out_pvar, pvar]),
+            psam = select_first([merge_files.out_psam, psam]),
             prefix = sampleset_name
     }
 
@@ -94,6 +106,75 @@ workflow primed_calc_pgs {
           author: "Stephanie Gogarten"
           email: "sdmorris@uw.edu"
      }
+}
+
+
+task prepare_genomes {
+    input {
+        File vcf
+        Boolean snps_only = true
+        Int mem_gb = 16
+        Int cpu = 2
+    }
+
+    Int disk_size = ceil(2.5*(size(vcf, "GB"))) + 5
+    String filename = basename(vcf)
+    String basename = sub(filename, "[[:punct:]][bv]cf.*z?$", "")
+    String prefix = if (sub(filename, ".bcf", "") != filename) then "--bcf" else "--vcf"
+
+    command <<<
+        plink2 ~{prefix} ~{vcf}  \
+            --allow-extra-chr \
+            --chr 1-22, X, Y, XY \
+            --set-all-var-ids @:#:\$r:\$a \
+            ~{true="--snps-only 'just-acgt' --max-alleles 2" false="" snps_only} \
+            --make-pgen --out ~{basename}
+    >>>
+
+    output {
+        File pgen = "~{basename}.pgen"
+        File pvar = "~{basename}.pvar"
+        File psam = "~{basename}.psam"
+    }
+
+    runtime {
+        docker: "uwgac/pgsc_calc:0.1.0"
+        disks: "local-disk ~{disk_size} SSD"
+        memory: "~{mem_gb}G"
+        cpu: "~{cpu}"
+    }
+}
+
+
+task merge_files {
+    input {
+        Array[File] pgen
+        Array[File] pvar
+        Array[File] psam
+        Int mem_gb = 16
+    }
+
+    Int disk_size = ceil(3*(size(pgen, "GB") + size(pvar, "GB") + size(psam, "GB"))) + 10
+
+    command <<<
+        set -e -o pipefail
+        cat ~{write_lines(pgen)} | sed 's/.pgen//' > pfile.txt
+        plink2 --pmerge-list pfile.txt pfile \
+            --merge-max-allele-ct 2 \
+            --out merged
+    >>>
+
+    output {
+        File out_pgen = "merged.pgen"
+        File out_pvar = "merged.pvar"
+        File out_psam = "merged.psam"
+    }
+
+    runtime {
+        docker: "quay.io/biocontainers/plink2:2.00a5.12--h4ac6f70_0"
+        disks: "local-disk " + disk_size + " SSD"
+        memory: mem_gb + " GB"
+    }
 }
 
 
