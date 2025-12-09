@@ -27,7 +27,6 @@ jobs:
       matrix:
         wdl-file: [
             ./primed_fetch_pgs_catalog.wdl,
-            ./primed_pgsc_calc.wdl,
             ./primed_calc_pgs.wdl,
         ]
 
