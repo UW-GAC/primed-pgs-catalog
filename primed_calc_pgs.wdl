@@ -1,5 +1,6 @@
 version 1.0
 
+import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc_prepare_genomes.wdl" as prep
 import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 
 workflow primed_calc_pgs {
@@ -27,7 +28,7 @@ workflow primed_calc_pgs {
 
     if (defined(vcf)) {
         scatter (file in select_first([vcf, ""])) {
-            call prepare_genomes {
+            call prep.prepare_genomes {
                 input:
                     vcf = file
             }
@@ -106,43 +107,6 @@ workflow primed_calc_pgs {
           author: "Stephanie Gogarten"
           email: "sdmorris@uw.edu"
      }
-}
-
-
-task prepare_genomes {
-    input {
-        File vcf
-        Boolean snps_only = false
-        Int mem_gb = 16
-        Int cpu = 2
-    }
-
-    Int disk_size = ceil(2.5*(size(vcf, "GB"))) + 5
-    String filename = basename(vcf)
-    String basename = sub(filename, "[[:punct:]][bv]cf.*z?$", "")
-    String prefix = if (sub(filename, ".bcf", "") != filename) then "--bcf" else "--vcf"
-
-    command <<<
-        plink2 ~{prefix} ~{vcf}  \
-            --allow-extra-chr \
-            --chr 1-22, X, Y, XY \
-            --set-all-var-ids @:#:\$r:\$a \
-            ~{true="--snps-only 'just-acgt' " false="" snps_only} \
-            --make-pgen multiallelics=- --out ~{basename}
-    >>>
-
-    output {
-        File pgen = "~{basename}.pgen"
-        File pvar = "~{basename}.pvar"
-        File psam = "~{basename}.psam"
-    }
-
-    runtime {
-        docker: "uwgac/pgsc_calc:0.1.0"
-        disks: "local-disk ~{disk_size} SSD"
-        memory: "~{mem_gb}G"
-        cpu: "~{cpu}"
-    }
 }
 
 
