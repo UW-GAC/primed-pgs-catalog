@@ -74,7 +74,7 @@ psam | psam file for genotype data. If provided, pgen/pvar must also be provided
 ancestry_adjust | Boolean for whether to adjust scores for ancestry using PCs (if true, provide input "pcs")
 pcs | optional file with PCs to adjust for ancestry.
 dest_bucket | google bucket path (starting with "gs://") where individual score files should be written
-model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/pgs/PRIMED_PGS_data_model.json"
+model_url | path to the PRIMED data model, e.g. "https://raw.githubusercontent.com/UW-GAC/primed_data_models/refs/heads/main/PRIMED_PGS_data_model.json"
 workspace_name | A string with the workspace name. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace name is "Terra-Workflows-Quickstart"
 workspace_namespace | A string with the workspace namespace. e.g, if the workspace URL is https://anvil.terra.bio/#workspaces/fc-product-demo/Terra-Workflows-Quickstart, the workspace namespace is "fc-product-demo"
 import_tables | A boolean indicating whether tables should be imported to a workspace after validation (default true).
