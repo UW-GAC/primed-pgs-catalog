@@ -10,3 +10,6 @@ workflows:
      primaryDescriptorPath: /primed_calc_pgs.wdl
      testParameterFiles:
         - /primed_calc_pgs.json
+   - name: plink_score
+     subclass: WDL
+     primaryDescriptorPath: /plink_score.wdl
