@@ -2,7 +2,6 @@ version 1.0
 
 import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 import "primed_calc_pgs.wdl" as this
-import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/calc_scores.wdl" as calc
 
 workflow pgs_calc_variant_file {
     input {
@@ -75,7 +74,7 @@ workflow pgs_calc_variant_file {
                check_bucket_paths = check_bucket_paths
     }
 
-    call calc.chr_prefix {
+    call chr_prefix {
         input:
             file = plink_score.variants
     }
@@ -93,4 +92,29 @@ workflow pgs_calc_variant_file {
           author: "Stephanie Gogarten"
           email: "sdmorris@uw.edu"
      }
+}
+
+
+task chr_prefix {
+    input {
+        File file
+    }
+
+    Int disk_size = ceil(5*(size(file, "GB"))) + 10
+    String filename = basename(file, ".gz")
+
+    command <<<
+        set -e -o pipefail
+        awk '{$1="chr"$1; print $0}' OFS="\t" ~{file} > ~{filename}_chrprefix
+    >>>
+
+    output {
+        File outfile = "~{filename}_chrprefix"
+    }
+
+    runtime {
+        docker: "quay.io/biocontainers/plink2:2.00a5.12--h4ac6f70_0"
+        disks: "local-disk ~{disk_size} SSD"
+        memory: "16G"
+    }
 }
