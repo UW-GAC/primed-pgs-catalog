@@ -1,15 +1,14 @@
 version 1.0
 
-import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/pgsc_calc_prepare_genomes.wdl" as prep
+import "https://raw.githubusercontent.com/UW-GAC/primed-file-checks/refs/heads/main/validate_pgs_individual.wdl" as validate
 import "primed_calc_pgs.wdl" as this
 import "https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/calc_scores.wdl" as calc
 
 workflow pgs_calc_variant_file {
     input {
-        Array[File]? vcf
-        File? pgen
-        File? pvar
-        File? psam
+        File pgen
+        File pvar
+        File psam
         File scorefile
         String genome_build
         Float min_overlap
@@ -19,28 +18,18 @@ workflow pgs_calc_variant_file {
         String? primed_dataset_id
         Boolean ancestry_adjust
         File? pcs
-    }
-
-    if (defined(vcf)) {
-        scatter (file in select_first([vcf, ""])) {
-            call prep.prepare_genomes {
-                input:
-                    vcf = file
-            }
-        }
-
-        call this.merge_files {
-        input:
-            pgen = prepare_genomes.pgen,
-            pvar = prepare_genomes.pvar,
-            psam = prepare_genomes.psam
-        }
+        String model_url
+        String workspace_name
+        String workspace_namespace
+        Boolean overwrite = false
+        Boolean import_tables = true
+        Boolean check_bucket_paths = true
     }
 
     call this.match_scorefile {
         input:
             scorefile = scorefile,
-            pvar = select_first([merge_files.out_pvar, pvar]),
+            pvar = pvar,
             genome_build = genome_build,
             min_overlap = min_overlap,
             pgs_name = pgs_model_id,
@@ -51,9 +40,9 @@ workflow pgs_calc_variant_file {
     call this.plink_score {
         input:
             scorefile = match_scorefile.match_scorefile,
-            pgen = select_first([merge_files.out_pgen, pgen]),
-            pvar = select_first([merge_files.out_pvar, pvar]),
-            psam = select_first([merge_files.out_psam, psam]),
+            pgen = pgen,
+            pvar = pvar,
+            psam = psam,
             prefix = sampleset_name
     }
 
@@ -63,6 +52,27 @@ workflow pgs_calc_variant_file {
                 scores = plink_score.scores,
                 pcs = select_first([pcs, ""])
         }
+    }
+
+    call this.prep_pgs_table {
+        input:
+            dest_bucket = dest_bucket,
+            score_file = plink_score.scores,
+            report_file = match_scorefile.match_summary,
+            adjusted_score_file = adjust_prs.adjusted_scores,
+            pgs_model_id = pgs_model_id,
+            sampleset_name = sampleset_name,
+            primed_dataset_id = primed_dataset_id
+    }
+
+    call validate.validate_pgs_individual {
+        input: table_files = prep_pgs_table.table_files,
+               model_url = model_url,
+               workspace_name = workspace_name,
+               workspace_namespace = workspace_namespace,
+               overwrite = overwrite,
+               import_tables = import_tables,
+               check_bucket_paths = check_bucket_paths
     }
 
     call calc.chr_prefix {
@@ -75,7 +85,7 @@ workflow pgs_calc_variant_file {
         File match_summary = match_scorefile.match_summary
         File score_file = plink_score.scores
         File variants = plink_score.variants
-        File variant_chr_prefix = chr_prefix.outfile
+        File variants_chr_prefix = chr_prefix.outfile
         File? adjusted_score_file = adjust_prs.adjusted_scores
     }
 
