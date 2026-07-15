@@ -13,3 +13,6 @@ workflows:
    - name: plink_score
      subclass: WDL
      primaryDescriptorPath: /plink_score.wdl
+   - name: pgs_calc_variant_file
+     subclass: WDL
+     primaryDescriptorPath: /pgs_calc_variant_file.wdl
