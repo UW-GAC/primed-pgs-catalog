@@ -174,8 +174,9 @@ task match_scorefile {
             "#genome_build=~{genome_build}"
         )
         writeLines(header, outfile)
+        score_file_columns <- c("chr_name", "chr_position", "effect_allele", "other_allele", "effect_weight")
         dat <- read_tsv("~{scorefile}", comment = "#") %>%
-            select(chr_name, chr_position, effect_allele, other_allele, effect_weight)
+            select(any_of(score_file_columns))
         write_tsv(dat, outfile, append=TRUE, col_names=TRUE)
         RSCRIPT
 
@@ -251,6 +252,8 @@ task adjust_prs {
         source('https://raw.githubusercontent.com/UW-GAC/pgsc_calc_wdl/refs/heads/main/ancestry_adjustment.R')
         scores <- read_tsv('~{scores}')
         pcs <- read_tsv('~{pcs}')
+        scores[['#IID']] <- as.character(scores[['#IID']])
+        pcs[['IID']] <- as.character(pcs[['IID']])
         scores <- prep_scores(scores)
         model <- fit_prs(scores, pcs)
         mean_coef <- model[['mean_coef']]
